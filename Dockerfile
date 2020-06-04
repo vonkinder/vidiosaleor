@@ -8,11 +8,34 @@
 FROM divio/base:4.16-py3.6-slim-stretch
 # </DOCKER_FROM>
 
-# <NPM>
-# </NPM>
+# <NODE>
+ADD build /stack/boilerplate
 
-# <BOWER>
-# </BOWER>
+ENV NODE_VERSION=10.15.1 \
+    NPM_VERSION=6.4.1
+
+RUN bash /stack/boilerplate/install.sh
+
+ENV NODE_PATH=$NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules \
+      PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+# </NODE>
+
+# install node dependencies
+COPY webpack.config.js app.json package.json package-lock.json /app/
+RUN npm install
+
+# build static files
+COPY ./saleor/static /app/saleor/static/
+COPY ./templates /app/templates/
+
+ENV STATIC_URL ${STATIC_URL:-/static/}
+
+RUN npm run build-assets --production && \
+    npm run build-emails --production
+
+RUN mkdir -p /app/media /app/static /app/webpack
+RUN cp -a /app/saleor/static/. /app/static
+RUN cp -a /app/webpack-bundle.json /app/webpack
 
 # <PYTHON>
 ENV PIP_INDEX_URL=${PIP_INDEX_URL:-https://wheels.aldryn.net/v1/aldryn-extras+pypi/${WHEELS_PLATFORM:-aldryn-baseproject-py3}/+simple/} \
@@ -29,9 +52,6 @@ RUN pip-reqs compile && \
 # <SOURCE>
 COPY . /app
 # </SOURCE>
-
-# <GULP>
-# </GULP>
 
 # <STATIC>
 RUN DJANGO_MODE=build python manage.py collectstatic --noinput

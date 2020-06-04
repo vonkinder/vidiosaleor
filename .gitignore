@@ -1,23 +1,15 @@
-# <DEFAULT>  # Warning: text inside the DEFAULT tags is auto-generated. Manual changes will be overwritten.
-# OS generated
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-*~
+__pycache__
 
-# Python
-*.pyc
-*.pyo
+.vscode/
+.idea/
 
-# Aldryn
-/.env
+data/
+data.tar.gz
 .aldryn
-/data
-/data.tar.gz
-/static_collected
-/node_modules
-# </DEFAULT>
+
+# from saleor
+**/*.pyc
+*.sqlite
+media
+node_modules
